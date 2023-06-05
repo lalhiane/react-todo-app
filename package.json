@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.15",
+    "cors": "^2.8.5",
     "graphql": "^16.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -26,6 +27,5 @@
     "eslint-plugin-react-refresh": "^0.3.4",
     "typescript": "^5.0.2",
     "vite": "^4.3.9"
-  },
-  "proxy": "http://localhost:8070/graphql"
+  }
 }

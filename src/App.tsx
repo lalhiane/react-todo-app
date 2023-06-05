@@ -1,144 +1,62 @@
-import { useQuery, gql, useMutation } from "@apollo/client";
+import {
 
-import React from "react";
+  ApolloClient,
 
-interface RegisterRequest {
+  InMemoryCache,
 
-  firstName?: string,
+  ApolloProvider,
 
-  lastName?: string,
+  HttpLink,
 
-  email?: string,
+  from
 
-  password?: string
+} from "@apollo/client";
 
-}
+import { onError } from "@apollo/client/link/error";
 
-interface Result {
+import Form from "./components/Form";
 
-  result: AuthenticationResponse
-
-}
-
-interface AuthenticationResponse {
-
-  token: string
-
-}
-
-const REGISTER = gql`
-
-  mutation register($input: RegisterRequest) {
-    
-    result: register(input: $input) {
-    
-      token
-    
-    }
+const errorLink = onError(({ graphQLErrors }) => {
   
+  if (graphQLErrors) {
+
+    graphQLErrors.map(({ message }) => {
+      
+      alert(`Graphql Error => ${message}`);
+
+    });
+
   }
 
-`;
+});
+
+const link = from([
+
+  errorLink,
+
+  new HttpLink({ uri: "http://localhost:8080/graphql" })
+
+]);
+
+const client = new ApolloClient({
+
+  cache: new InMemoryCache(),
+
+  link: link,
+
+});
 
 function App() {
 
-  const [firstName, setFirstName] = React.useState<string>();
-
-  const [lastName, setLastName] = React.useState<string>();
-
-  const [email, setEmail] = React.useState<string>();
-
-  const [password, setPassword] = React.useState<string>();
-
-  const [register] = useMutation<Result, RegisterRequest>(REGISTER);
-
-  const getToken = async () => {
-
-    try {
-
-      const result = await register({
-
-        variables: {
-
-          firstName: firstName,
-
-          lastName: lastName,
-
-          email: email,
-
-          password: password
-
-        }
-
-      });
-
-      const token = result.data?.result;
-
-      return token;
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-
-  }
-
   return (
 
-    <form onSubmit={e => e.preventDefault()}>
+    <ApolloProvider client={client}>
 
-      <input
-        
-        type="text"
-        
-        placeholder="First Name"
-        
-        onChange={e => setFirstName(e.target.value)}
-      
-      />
+      <Form />
 
-      <input
-        
-        type="text"
-        
-        placeholder="Last Name"
+    </ApolloProvider>
 
-        onChange={e => setLastName(e.target.value)}
-      
-      />
-
-      <input
-        
-        type="email"
-        
-        placeholder="Email"
-
-        onChange={e => setEmail(e.target.value)}
-      
-      />
-
-      <input
-      
-        type="password"
-        
-        placeholder="Password"
-
-        onChange={e => setPassword(e.target.value)}
-      
-      />
-
-      <button
-        
-        type="submit"
-
-        onClick={() => console.log(getToken())}
-      
-      >Register</button>
-
-    </form>
-
-  )
+  );
 
 }
 
